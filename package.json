@@ -1,0 +1,16 @@
+{
+  "name": "selfupdate-script",
+  "version": "2022.2.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "devDependencies": {
+    "mocha": "latest",
+    "assert": "latest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "BSD 3-Clause License"
+}
