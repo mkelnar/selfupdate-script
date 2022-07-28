@@ -3,14 +3,30 @@
   "version": "2022.2.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/js/index.js",
+    "test": "mocha test/**/*.js",
+    "lint": "eslint **/*.mjs && shellcheck src/bash/updater.sh"
   },
+  "main": "src/js/index.js",
   "type": "module",
+  "dependencies": {
+    "commander": "^9.4.0",
+    "process": "latest"
+  },
   "devDependencies": {
     "mocha": "latest",
-    "assert": "latest"
+    "assert": "latest",
+    "eslint": "latest",
+    "shellcheck": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-async-await": "latest",
+    "eslint-plugin-promise": "latest"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "selfupdate",
+    "updater",
+    "script"
+  ],
+  "author": "Michal Kelnar",
   "license": "BSD 3-Clause License"
 }
