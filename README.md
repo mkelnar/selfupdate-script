@@ -10,4 +10,4 @@ See the `LICENSE.txt` file for more details.
 --
 
 Author Michal Kelnar,
-Copyright 2022 mkelnar
+Copyright 2022 Michal Kelnar
