@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # * ********************************************************************************************************* *
 # *
-# * Copyright 2022 Oidis
+# * Copyright 2022 Michal Kelnar
 # *
 # * SPDX-License-Identifier: BSD-3-Clause
 # * The BSD-3-Clause license for this file can be found in the LICENSE.txt file included with this distribution
@@ -11,6 +11,7 @@
 version=20220200
 updateUrl="https://hub.dev.oidis.io/Configuration/com-wui-framework-services/BaseInstallationRecipe/2019.0.0"
 isDryRun=0
+isForce=0
 tmpScript=/tmp/autoupdatescript-$(date '+%s').sh
 logFile=/tmp/autoupdatescript.log
 sourceFile=$0
@@ -27,26 +28,25 @@ function logError() {
 
 function exitHandler() {
   log "Clean up before exit: $1"
-  rm -f $tmpScript
-  exit $1
+  rm -f "$tmpScript"
+  exit "$1"
 }
 
 function download() {
-  which curl &>/dev/null
-  if [ $? -eq 0 ]; then
+  if [ -x "$(command -v curl)" ]; then
     log "Download by curl from: $updateUrl"
     if ! [[ $isDryRun == 1 ]]; then
-      curl -fsSL "$updateUrl" >$tmpScript
+      curl -fsSL "$updateUrl" >"$tmpScript"
     fi
   else
     log "Download by wget from: $updateUrl"
     if ! [[ $isDryRun == 1 ]]; then
-      wget -O $tmpScript "$updateUrl"
+      wget -O "$tmpScript" "$updateUrl"
     fi
   fi
 
   if [[ $isDryRun == 1 ]]; then
-    cp -p $sourceFile $tmpScript
+    cp -p "$sourceFile" "$tmpScript"
   fi
 
   log "Downloaded content: $tmpScript"
@@ -59,30 +59,28 @@ function download() {
 }
 
 function update() {
-  log "\n**********  Automatic update of this executor script content starting  **********"
-  # todo add some countdown (10s) to let user choose Y/n question here
+  log "**********  Automatic update of this executor script content starting  **********"
+  if ! [[ $isForce == 1 ]]; then
+    # todo add some countdown (10s) to let user choose Y/n question here
+    echo "TBD"
+  fi
   if [[ $isDryRun == 1 ]]; then
     log "Utility is executed in dry-run mode, this will only print steps without any modification"
   fi
-  # this function should do several things
-  #  1) download content
-  #  2) validate downloaded script
-  #  3) create backup simple copy with .backup postfix
-  #  4) replace itself by new content
 
   download
-  validate $tmpScript
+  validate "$tmpScript"
 
   log "Create backup into $sourceFile.backup"
-  cp -pf $sourceFile $sourceFile.backup || exitHandler -1
+  cp -pf "$sourceFile" "$sourceFile.backup" || exitHandler -1
 
   log "Overwrite current file by downloaded script"
   if ! [[ $isDryRun == 1 ]]; then
-    cp -pf $tmpScript $sourceFile || exitHandler -1
-    chmod +x $sourceFile
+    cp -pf "$tmpScript" "$sourceFile" || exitHandler -1
+    chmod +x "$sourceFile"
   fi
 
-  validate $sourceFile
+  validate "$sourceFile"
 
   log "Script update succeed"
 }
@@ -90,13 +88,13 @@ function update() {
 function validate() {
   # this function should fail and exit if not succeed, update will continue otherwise
   log "Validate downloaded script: $1 --version"
-  chmod +x $1
-  $1 --version || exitHandler -1
+  chmod +x "$1"
+  $1 sus-update --version || exitHandler -1
 }
 
 function help() {
   echo "Self update script utility is able to wrap custom script byt self updating feature from new content"
-  echo "Usage: <script> sus-update [options]"
+  echo "Usage: {script-name} sus-update [options]"
   echo "Options below are applicable only when sus-update sub-command is used for script invocation."
   echo "Any other invocation is directly redirected to custom script (TBD)"
   echo "  -v|--version       Prints selfupdate-script version"
@@ -104,6 +102,7 @@ function help() {
   echo "  --update-url=<>    Specify overwrite for internally defined update url"
   echo "  --dry-run          Use this for validation purposes, it will do everything except download
                              from url (mocked copy of itself will be validated) and original script overwrite"
+  echo "  --force            Force do the script update without any user prompts."
   echo "  sus-update         Overwrite itself by new content"
 }
 
@@ -120,6 +119,10 @@ function argParse() {
       ;;
     --update-url)
       updateUrl=""
+      shift
+      ;;
+    --force)
+      isForce=1
       shift
       ;;
     -v | --version)
@@ -198,7 +201,7 @@ function embeddedScript() {
     exit 1
   fi
 
-  echo "external script: docker-compose -f "$FILE" --compatibility $ACTION"
+  echo "external script: docker-compose -f $FILE --compatibility $ACTION"
 }
 ## END - selfupdate-script embedded content
 
@@ -206,7 +209,7 @@ function main() {
   if [[ $1 == "sus-update" ]]; then
     shift
 
-    argParse $@
+    argParse "$@"
     update
     exitHandler 0
   else
