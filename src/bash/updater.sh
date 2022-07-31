@@ -99,6 +99,7 @@ function help() {
   echo "Any other invocation is directly redirected to custom script (TBD)"
   echo "  -v|--version       Prints selfupdate-script version"
   echo "  -h|--help          Prints selfupdate-script help"
+  echo "  --get-url          Prints internally defined update url"
   echo "  --update-url=<>    Specify overwrite for internally defined update url"
   echo "  --dry-run          Use this for validation purposes, it will do everything except download
                              from url (mocked copy of itself will be validated) and original script overwrite"
@@ -113,12 +114,16 @@ function argParse() {
       help
       exit 0
       ;;
+    --get-url)
+      echo $updateUrl
+      exit 0
+      ;;
     --dry-run)
       isDryRun=1
       shift
       ;;
-    --update-url)
-      updateUrl=""
+    --update-url=*)
+      updateUrl="${i#*=}"
       shift
       ;;
     --force)
@@ -140,68 +145,7 @@ function argParse() {
 
 function embeddedScript() {
   ## BEGIN - selfupdate-script embedded content
-  #  echo "Invocation of embedded script: $@"
-  #!/usr/bin/env bash
-  # * ********************************************************************************************************* *
-  # *
-  # * Copyright 2022 Oidis
-  # *
-  # * SPDX-License-Identifier: BSD-3-Clause
-  # * The BSD-3-Clause license for this file can be found in the LICENSE.txt file included with this distribution
-  # * or at https://spdx.org/licenses/BSD-3-Clause.html#licenseText
-  # *
-  # * ********************************************************************************************************* *
-
-  for i in "$@"; do
-    case $i in
-    -h | --help)
-      echo "This is simple wrapper for docker compose to simplify invocation from this base overrides."
-      echo "  start            Starts service"
-      echo "  stop             Stops service and remove orphans"
-      echo "  pull             Pull images"
-      echo "  restart          Do the shallow restart"
-      echo "  -f=*, --file=*   Specify docker compose file. Note that this could be already specified in wrapping script."
-      exit 0
-      ;;
-    start | up)
-      ACTION="up -d"
-      shift
-      ;;
-    stop | down)
-      ACTION="down --remove-orphans"
-      shift
-      ;;
-    pull)
-      ACTION="pull"
-      shift
-      ;;
-    restart)
-      ACTION="restart"
-      shift
-      ;;
-    -f=* | --file=*)
-      FILE="${i#*=}"
-      shift
-      ;;
-    -*)
-      echo "Unknown option $i" >>/dev/stderr
-      exit 1
-      ;;
-    *) ;;
-    esac
-  done
-
-  if [[ -z "${ACTION}" ]]; then
-    echo "No task specified, see --help" >>/dev/stderr
-    exit 1
-  fi
-
-  if [[ -z "${FILE}" ]]; then
-    echo "Missing compose file argument, see --help" >>/dev/stderr
-    exit 1
-  fi
-
-  echo "external script: docker-compose -f $FILE --compatibility $ACTION"
+  echo "Invocation of embedded script: $@"
   ## END - selfupdate-script embedded content
 }
 
