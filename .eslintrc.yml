@@ -12,11 +12,14 @@ root: true
 
 extends:
   - eslint:recommended
+  - standard
 
 plugins:
   - import
   - async-await
   - promise
+  - react
+  - node
 
 parserOptions:
   ecmaVersion: 2022
@@ -24,3 +27,42 @@ parserOptions:
 
 env:
   es6: true
+
+rules:
+  max-len: ["error", { "code": 140 }]
+  quotes: [ "error", "double", { "avoidEscape": true, "allowTemplateLiterals": false } ]
+  indent: [ "error", 4, {
+    "SwitchCase": 1,
+    "VariableDeclarator": 1,
+    "outerIIFEBody": 1,
+    "MemberExpression": 2,
+    "FunctionDeclaration": { "parameters": 1, "body": 1 },
+    "FunctionExpression": { "parameters": 1, "body": 1 },
+    "CallExpression": { "arguments": 1},
+    "ArrayExpression": 1,
+    "ObjectExpression": 1,
+    "ImportDeclaration": 1,
+    "flatTernaryExpressions": false,
+    "ignoreComments": false,
+    "ignoredNodes": [ "TemplateLiteral *", "JSXElement", "JSXElement > *", "JSXAttribute", "JSXIdentifier", "JSXNamespacedName", "JSXMemberExpression", "JSXSpreadAttribute", "JSXExpressionContainer", "JSXOpeningElement", "JSXClosingElement", "JSXFragment", "JSXOpeningFragment", "JSXClosingFragment", "JSXText", "JSXEmptyExpression", "JSXSpreadChild" ],
+    "offsetTernaryExpressions": true
+  }]
+  semi: ["error", "always"]
+  object-curly-spacing: ["error", "never"]
+  space-before-function-paren: ["error",  {
+    "anonymous": "never",
+    "named": "never",
+    "asyncArrow": "always"
+  }]
+  space-infix-ops: ["error", { "int32Hint": false }]
+
+  # Plugins
+  node/exports-style: [ "error", "module.exports" ]
+  node/file-extension-in-import: [ "error", "always" ]
+  node/prefer-global/buffer: [ "error", "always" ]
+  node/prefer-global/console: [ "error", "always" ]
+  node/prefer-global/process: [ "error", "always" ]
+  node/prefer-global/url-search-params: [ "error", "always" ]
+  node/prefer-global/url: [ "error", "always" ]
+  node/prefer-promises/dns: "error"
+  node/prefer-promises/fs: "error"
