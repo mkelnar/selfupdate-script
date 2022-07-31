@@ -45,16 +45,16 @@ describe("Script", () => {
                 console.log("send");
             }
         });
-        server.on('error', (e) => {
-            if (e.code === 'EADDRINUSE') {
-                console.log('Address in use, retrying...');
+        server.on("error", (e) => {
+            if (e.code === "EADDRINUSE") {
+                console.log("Address in use, retrying...");
                 setTimeout(() => {
                     server.close();
                 }, 1000);
             }
         });
         timeout = setTimeout(() => {
-            console.log("Server timeout expired")
+            console.log("Server timeout expired");
             server.close();
         }, 5000);
         server.listen();

@@ -7,10 +7,9 @@
  * or at https://spdx.org/licenses/BSD-3-Clause.html#licenseText
  *
  * ********************************************************************************************************* */
-import {describe, it} from "mocha";
+import {before, describe, it} from "mocha";
 import * as assert from "assert";
 import {exec} from "child_process";
-import process, {cwd} from "process";
 
 async function execute($args, $cwd) {
     if (!Array.isArray($args)) {

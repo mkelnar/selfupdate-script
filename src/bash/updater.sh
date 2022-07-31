@@ -145,7 +145,7 @@ function argParse() {
 
 function embeddedScript() {
   ## BEGIN - selfupdate-script embedded content
-  echo "Invocation of embedded script: $@"
+  echo "Invocation of embedded script"
   ## END - selfupdate-script embedded content
 }
 

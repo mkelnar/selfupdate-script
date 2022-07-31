@@ -41,7 +41,7 @@ program
         let scriptFileName = path.basename($script);
         let output = $options.out;
         if (output && (fs.existsSync(output) || fs.existsSync(path.dirname(output)))) {
-            if (fs.statSync(output).isDirectory()) {
+            if (fs.existsSync(output) && fs.statSync(output).isDirectory()) {
                 output += "/" + scriptFileName;
             }
         } else {
