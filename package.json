@@ -3,8 +3,8 @@
   "version": "2022.2.0",
   "description": "",
   "scripts": {
-    "start": "node src/js/index.js",
-    "test": "mocha test/**/*.js",
+    "start": "node src/js/index.mjs",
+    "test": "mocha test/**/*.mjs",
     "lint": "eslint **/*.mjs && shellcheck src/bash/updater.sh"
   },
   "main": "src/js/index.js",

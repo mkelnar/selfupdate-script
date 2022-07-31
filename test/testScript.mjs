@@ -7,26 +7,25 @@
  * or at https://spdx.org/licenses/BSD-3-Clause.html#licenseText
  *
  * ********************************************************************************************************* */
-import { describe, it, before, after} from "mocha"
+import {describe, it, before, after} from "mocha";
 import * as assert from "assert";
-import * as process from "process";
-import { exec } from 'child_process';
-import { createServer } from "http";
+import {exec} from "child_process";
+import {createServer} from "http";
 
 async function execute($args) {
     if (!Array.isArray($args)) {
         $args = [$args];
     }
-    return new Promise(($resolve, $reject) => {
+    return new Promise((resolve, reject) => {
         exec("./updater.sh " + $args.join(" "), {cwd: process.cwd() + "/src/bash", shell: "/bin/bash"}, ($error, $stdout, $stderr) => {
             if ($error) {
-                $reject($error);
+                reject($error);
             } else if ($stderr.length > 0) {
-                $reject(new Error($stderr));
+                reject(new Error($stderr));
             } else {
-                $resolve($stdout);
+                resolve($stdout);
             }
-        })
+        });
     });
 }
 
@@ -39,13 +38,13 @@ describe("Script", () => {
                 res.end();
             } else {
                 res.writeHead(200);
-                res.end('Hello, World!');
+                res.end("Hello, World!");
             }
         });
         server.listen(8182);
     });
     after(() => {
-        server.close()
+        server.close();
     });
 
     it("version", async () => {
@@ -66,11 +65,10 @@ describe("Script", () => {
             "  sus-update         Overwrite itself by new content\n");
     });
     it("update", async () => {
-        assert.strictEqual((await execute(["sus-update", "--dry-run"]))
-            .replace(/autoupdatescript-\d{10,}\.sh/g,"autoupdatescript-TIMESTAMP.sh"),
-            "" +
+        assert.strictEqual(
+            (await execute(["sus-update", "--dry-run"])).replace(/autoupdatescript-\d{10,}\.sh/g, "autoupdatescript-TIMESTAMP.sh"),
             "**********  Automatic update of this executor script content starting  **********\n" +
-            "TBD\n"+
+            "TBD\n" +
             "Utility is executed in dry-run mode, this will only print steps without any modification\n" +
             "Download by curl from: https://hub.dev.oidis.io/Configuration/com-wui-framework-services/BaseInstallationRecipe/2019.0.0\n" +
             "Downloaded content: /tmp/autoupdatescript-TIMESTAMP.sh\n" +
@@ -82,6 +80,6 @@ describe("Script", () => {
             "Validate downloaded script: ./updater.sh --version\n" +
             "20220200\n" +
             "Script update succeed\n" +
-            "Clean up before exit: 0\n")
+            "Clean up before exit: 0\n");
     });
 });

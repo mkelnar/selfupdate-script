@@ -20,6 +20,7 @@
 !/.idea/misc.xml
 !/.idea/vcs.xml
 
+/build/
 /node_modules/
 /node_modules
 /dependencies/

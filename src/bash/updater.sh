@@ -138,8 +138,8 @@ function argParse() {
   done
 }
 
-## BEGIN - selfupdate-script embedded content
 function embeddedScript() {
+  ## BEGIN - selfupdate-script embedded content
   #  echo "Invocation of embedded script: $@"
   #!/usr/bin/env bash
   # * ********************************************************************************************************* *
@@ -202,8 +202,8 @@ function embeddedScript() {
   fi
 
   echo "external script: docker-compose -f $FILE --compatibility $ACTION"
+  ## END - selfupdate-script embedded content
 }
-## END - selfupdate-script embedded content
 
 function main() {
   if [[ $1 == "sus-update" ]]; then
