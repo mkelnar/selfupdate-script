@@ -20,12 +20,16 @@ const projectRoot = process.argv[1].replace("/src/js/index.mjs", "");
 program
     .name("selfupdate-script")
     .version("" + process.env.npm_package_version, "-v, --version")
-    .description("TBD")
+    .description(
+        "This utility takes specified script from argument path and embed it into\n" +
+        "selfupdate-script content. Newly created script at output path or in ./build\n" +
+        "subfolder when called from module root directory is capable to invoke code\n" +
+        "from original one. However, when 'sus-update' argument is specified then\n" +
+        "selfupdate from online source will be invoked.")
     .argument("<path>", "Script to be embedded into selfupdate-script")
-    .option("--dry-run", "TBD", false)
-    .option("--update-url", "TBD", "")
-    .option("--name", "TBD", "")
-    .option("--out", "TBD", "")
+    .option("--update-url <url>", "Specify new URL for script update (will be embedded into script).", "")
+    .option("--update-version <version>", "Specify new version of script.", "")
+    .option("--out <out>", "Select output location, accepts directory (original script name will be appended) or file path.", "")
     .action(($script, $options) => {
         if (!fs.existsSync($script)) {
             console.error("Script path not exists: " + $script);
@@ -48,6 +52,18 @@ program
         let embed = fs.readFileSync($script).toString();
         let script = fs.readFileSync(projectRoot + "/src/bash/updater.sh").toString();
 
+        if($options.updateVersion){
+            script = script.replace(/^version=.*$/m, "version=" + $options.updateVersion);
+        }
+        if ($options.updateUrl) {
+            try {
+                new URL($options.updateUrl);
+            } catch {
+                console.error("WARNING: Specified URL is invalid: " + $options.updateUrl);
+            }
+            script = script.replace(/^updateUrl=".*"$/m, "updateUrl=\"" + $options.updateUrl + "\"");
+        }
+
         const startKey = "  ## BEGIN - selfupdate-script embedded content";
         const stopKey = "  ## END - selfupdate-script embedded content";
         let start = script.indexOf(startKey);
@@ -64,5 +80,6 @@ program
         console.log("selfupdate-script has been created: " + output);
     });
 
+// TODO(mkelnar) add better error handling for commander issues -> stop processing
 program.showSuggestionAfterError(true);
 program.parse();

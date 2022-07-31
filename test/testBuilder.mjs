@@ -49,7 +49,24 @@ describe("Builder", () => {
     });
 
     it("help", async () => {
-        assert.strictEqual(await execute(["--help"]), 20220200);
+        assert.strictEqual(await execute(["--help"]),
+            "Usage: selfupdate-script [options] <path>\n\n" +
+            "This utility takes specified script from argument path and embed it into\n" +
+            "selfupdate-script content. Newly created script at output path or in ./build\n" +
+            "subfolder when called from module root directory is capable to invoke code\n" +
+            "from original one. However, when 'sus-update' argument is specified then\n" +
+            "selfupdate from online source will be invoked.\n\n" +
+            "Arguments:\n" +
+            "  path                        Script to be embedded into selfupdate-script\n\n" +
+            "Options:\n" +
+            "  -v, --version               output the version number\n" +
+            "  --update-url <url>          Specify new URL for script update (will be\n" +
+            "                              embedded into script). (default: \"\")\n" +
+            "  --update-version <version>  Specify new version of script. (default: \"\")\n" +
+            "  --out <out>                 Select output location, accepts directory\n" +
+            "                              (original script name will be appended) or file\n" +
+            "                              path. (default: \"\")\n" +
+            "  -h, --help                  display help for command\n");
     });
 
     it("invalid-argument", async () => {
@@ -69,7 +86,28 @@ describe("Builder", () => {
             "20220200");
 
         assert.strictEqual(
+            (await runScript(process.cwd() + "/build/testScript.sh", ["sus-update", "--get-url"])).trim(),
+            "https://hub.dev.oidis.io/Configuration/com-wui-framework-services/BaseInstallationRecipe/2019.0.0");
+
+        assert.strictEqual(
             (await runScript(process.cwd() + "/build/testScript.sh", ["--version"])).trim(),
             "testscript v1.0.0");
+    });
+
+    it("update-url-arg", async () => {
+        // path shifted by execute()!
+        assert.strictEqual(
+            (await execute([
+                "../../test/resources/testScript.sh",
+                "--update-url=https://whatever.what/script",
+                "--update-version=123.456.666"])).trim(),
+            "selfupdate-script has been created: " + process.cwd() + "/build/testScript.sh");
+
+        assert.strictEqual(
+            (await runScript(process.cwd() + "/build/testScript.sh", ["sus-update", "--get-url"])).trim(),
+            "https://whatever.what/script");
+        assert.strictEqual(
+            (await runScript(process.cwd() + "/build/testScript.sh", ["sus-update", "--version"])).trim(),
+            "123.456.666");
     });
 });

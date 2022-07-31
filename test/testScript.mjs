@@ -11,6 +11,7 @@ import {describe, it, before, after} from "mocha";
 import * as assert from "assert";
 import {exec} from "child_process";
 import {createServer} from "http";
+import * as fs from "fs";
 
 async function execute($args) {
     if (!Array.isArray($args)) {
@@ -31,19 +32,37 @@ async function execute($args) {
 
 describe("Script", () => {
     let server;
+    let timeout;
     before(() => {
         server = createServer((req, res) => {
             if (req.url === "") {
                 res.writeHead(404);
                 res.end();
-            } else {
+            } else if (req.url === "/script.sh") {
+                console.log("sending");
                 res.writeHead(200);
-                res.end("Hello, World!");
+                res.end(fs.readFileSync(process.cwd() + "/src/bash/updater.sh").toString());
+                console.log("send");
             }
         });
-        server.listen(8182);
+        server.on('error', (e) => {
+            if (e.code === 'EADDRINUSE') {
+                console.log('Address in use, retrying...');
+                setTimeout(() => {
+                    server.close();
+                }, 1000);
+            }
+        });
+        timeout = setTimeout(() => {
+            console.log("Server timeout expired")
+            server.close();
+        }, 5000);
+        server.listen();
     });
     after(() => {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
         server.close();
     });
 
@@ -58,19 +77,40 @@ describe("Script", () => {
             "Any other invocation is directly redirected to custom script (TBD)\n" +
             "  -v|--version       Prints selfupdate-script version\n" +
             "  -h|--help          Prints selfupdate-script help\n" +
+            "  --get-url          Prints internally defined update url\n" +
             "  --update-url=<>    Specify overwrite for internally defined update url\n" +
             "  --dry-run          Use this for validation purposes, it will do everything except download\n" +
             "                             from url (mocked copy of itself will be validated) and original script overwrite\n" +
             "  --force            Force do the script update without any user prompts.\n" +
             "  sus-update         Overwrite itself by new content\n");
     });
-    it("update", async () => {
+    it("update-dry", async () => {
         assert.strictEqual(
             (await execute(["sus-update", "--dry-run"])).replace(/autoupdatescript-\d{10,}\.sh/g, "autoupdatescript-TIMESTAMP.sh"),
             "**********  Automatic update of this executor script content starting  **********\n" +
             "TBD\n" +
             "Utility is executed in dry-run mode, this will only print steps without any modification\n" +
             "Download by curl from: https://hub.dev.oidis.io/Configuration/com-wui-framework-services/BaseInstallationRecipe/2019.0.0\n" +
+            "Downloaded content: /tmp/autoupdatescript-TIMESTAMP.sh\n" +
+            "New script downloaded: /tmp/autoupdatescript-TIMESTAMP.sh\n" +
+            "Validate downloaded script: /tmp/autoupdatescript-TIMESTAMP.sh --version\n" +
+            "20220200\n" +
+            "Create backup into ./updater.sh.backup\n" +
+            "Overwrite current file by downloaded script\n" +
+            "Validate downloaded script: ./updater.sh --version\n" +
+            "20220200\n" +
+            "Script update succeed\n" +
+            "Clean up before exit: 0\n");
+    });
+    it("update", async () => {
+        assert.strictEqual(
+            (await execute([
+                "sus-update",
+                "--update-url=http://localhost:" + server.address().port + "/script.sh"
+            ])).replace(/autoupdatescript-\d{10,}\.sh/g, "autoupdatescript-TIMESTAMP.sh"),
+            "**********  Automatic update of this executor script content starting  **********\n" +
+            "TBD\n" +
+            "Download by curl from: http://localhost:" + server.address().port + "/script.sh\n" +
             "Downloaded content: /tmp/autoupdatescript-TIMESTAMP.sh\n" +
             "New script downloaded: /tmp/autoupdatescript-TIMESTAMP.sh\n" +
             "Validate downloaded script: /tmp/autoupdatescript-TIMESTAMP.sh --version\n" +
