@@ -71,8 +71,8 @@ function update() {
   download
   validate "$tmpScript"
 
-  log "Create backup into $sourceFile.backup"
-  cp -pf "$sourceFile" "$sourceFile.backup" || exitHandler -1
+  log "Create backup into /tmp/$sourceFile.backup"
+  cp -pf "$sourceFile" "/tmp/$sourceFile.backup" || exitHandler -1
 
   log "Overwrite current file by downloaded script"
   if ! [[ $isDryRun == 1 ]]; then
