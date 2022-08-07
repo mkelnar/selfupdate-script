@@ -50,7 +50,7 @@ program
             output = projectRoot + "/build/" + scriptFileName;
         }
         let embed = fs.readFileSync($script).toString();
-        let script = fs.readFileSync(projectRoot + "/src/bash/updater.sh").toString();
+        let script = fs.readFileSync(projectRoot + "/src/scripts/updater.sh").toString();
 
         if($options.updateVersion){
             script = script.replace(/^version=.*$/m, "version=" + $options.updateVersion);

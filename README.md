@@ -8,7 +8,7 @@ reserved sub-command keyword "sus-update" (Self-Update Script - SUS) this contai
 Original file will be overwritten only when download and validation succeed ("--version" option is used for integrity validation).
 
 ### Selfupdate-script
-Main container "./src/bash/updater.sh" contains several functions for internal use and one which holds embedded script 
+Main container "./src/scripts/updater.sh" contains several functions for internal use and one which holds embedded script 
 content "embeddedScript()". This function body could be replaced by custom script content manually or by prepared NPM module.
 Both "BEGIN" and "END" comment marks are in SUS only to identify content to replace by builder.
 

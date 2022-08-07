@@ -18,7 +18,7 @@ async function execute($args) {
         $args = [$args];
     }
     return new Promise((resolve, reject) => {
-        exec("./updater.sh " + $args.join(" "), {cwd: process.cwd() + "/src/bash", shell: "/bin/bash"}, ($error, $stdout, $stderr) => {
+        exec("./updater.sh " + $args.join(" "), {cwd: process.cwd() + "/src/scripts", shell: "/bin/bash"}, ($error, $stdout, $stderr) => {
             if ($error) {
                 reject($error);
             } else if ($stderr.length > 0) {
@@ -41,7 +41,7 @@ describe("Script", () => {
             } else if (req.url === "/script.sh") {
                 console.log("sending");
                 res.writeHead(200);
-                res.end(fs.readFileSync(process.cwd() + "/src/bash/updater.sh").toString());
+                res.end(fs.readFileSync(process.cwd() + "/src/scripts/updater.sh").toString());
                 console.log("send");
             }
         });
