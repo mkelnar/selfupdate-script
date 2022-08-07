@@ -12,8 +12,9 @@ version=20220200
 updateUrl="https://hub.dev.oidis.io/Configuration/com-wui-framework-services/BaseInstallationRecipe/2019.0.0"
 isDryRun=0
 isForce=0
-tmpScript=/tmp/autoupdatescript-$(date '+%s').sh
-logFile=/tmp/autoupdatescript.log
+tempPath="/tmp"
+tmpScript=$tempPath/autoupdatescript-$(date '+%s').sh
+logFile=$tempPath/autoupdatescript.log
 sourceFile=$0
 
 function log() {
@@ -71,8 +72,10 @@ function update() {
   download
   validate "$tmpScript"
 
-  log "Create backup into /tmp/$sourceFile.backup"
-  cp -pf "$sourceFile" "/tmp/$sourceFile.backup" || exitHandler -1
+# // TODO(mkelnar) validate this from different folder, not sure how $0 argument is resolved
+  scriptName=$(basename $sourceFile)
+  log "Create backup into $tempPath/$scriptName.backup"
+  cp -pf "$sourceFile" "$tempPath/$scriptName.backup" || exitHandler -1
 
   log "Overwrite current file by downloaded script"
   if ! [[ $isDryRun == 1 ]]; then
@@ -89,11 +92,11 @@ function validate() {
   # this function should fail and exit if not succeed, update will continue otherwise
   log "Validate downloaded script: $1 --version"
   chmod +x "$1"
-  $1 sus-update --version || exitHandler -1
+  $1 sus-update --version || exitHandler 1
 }
 
 function help() {
-  echo "Self update script utility is able to wrap custom script byt self updating feature from new content"
+  echo "Self update script utility is able to wrap custom script by self updating feature from new content"
   echo "Usage: {script-name} sus-update [options]"
   echo "Options below are applicable only when sus-update sub-command is used for script invocation."
   echo "Any other invocation is directly redirected to custom script (TBD)"
