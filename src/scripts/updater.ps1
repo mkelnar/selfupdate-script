@@ -18,20 +18,20 @@ if (-not(Test-Path $tempPath))
     new-item "$tempPath" -ItemType Directory -Force
 }
 $tmpScript = Join-Path $tempPath $( "autoupdatescript-" +
-        [Math]::Ceiling((New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds) + ".ps1")
+        [Math]::Ceiling((New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds) + ".ps1" )
 $logFile = Join-Path $tempPath "autoupdatescript.log"
 $sourceFile = $MyInvocation.MyCommand.Path
 
 function log([String]$log)
 {
-    echo "$log"
-    echo "[$((Get-Date).ToUniversalTime() )][INFO]: $log" >> $logFile
+    Write-Output "$log"
+    Write-Output "[$((Get-Date).ToUniversalTime() )][INFO]: $log" >> $logFile
 }
 
 function logError([String]$err)
 {
-    echo "$err" 2>&1
-    echo "[$((Get-Date).ToUniversalTime() )][ERROR]: $err" >> $logFile
+    Write-Error "$err"
+    Write-Output "[$((Get-Date).ToUniversalTime() )][ERROR]: $err" >> $logFile
 }
 
 function exitHandler([Int32]$exitCode)
@@ -46,7 +46,6 @@ function exitHandler([Int32]$exitCode)
 
 function download()
 {
-    $updateUrl="proto://unknoen/file.ts"
     try
     {
         if ($isDryRun -eq 1)
@@ -72,7 +71,7 @@ function download()
     else
     {
         logError "Failed to download new script"
-        exitHandler -1
+        exitHandler 1
     }
 }
 
@@ -111,7 +110,7 @@ function update()
     log "Script update succeed"
 }
 
-function validate($script)
+function validate([String]$script)
 {
     # this function should fail and exit if not succeed, update will continue otherwise
     log "Validate downloaded script: $script --version"
@@ -127,7 +126,7 @@ function validate($script)
     }
 }
 
-function help()
+function printHelp()
 {
     Write-Output "Self update script utility is able to wrap custom script by self updating feature from new content"
     Write-Output "Usage: {script-name} sus-update [options]"
@@ -143,7 +142,7 @@ function help()
     Write-Output "  sus-update         Overwrite itself by new content"
 }
 
-function argParse($argList)
+function argParse([Array]$argList)
 {
     Write-Output "Args cnt: $( $argList.Count )"
     Write-Output "Args: $argList"
@@ -154,7 +153,7 @@ function argParse($argList)
             "-h" {
             }
             "--help" {
-                help;
+                printHelp;
                 exit 0;
             }
             "--get-url"{
@@ -195,7 +194,7 @@ function embeddedScript()
     ## END - selfupdate-script embedded content
 }
 
-function main($argList)
+function main([Array]$argList)
 {
     if ($argList[0] -eq "sus-update")
     {
