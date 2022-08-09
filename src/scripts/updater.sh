@@ -55,7 +55,7 @@ function download() {
     log "New script downloaded: $tmpScript"
   else
     logError "Failed to download new script"
-    exitHandler -1
+    exitHandler 1
   fi
 }
 
@@ -72,8 +72,7 @@ function update() {
   download
   validate "$tmpScript"
 
-# // TODO(mkelnar) validate this from different folder, not sure how $0 argument is resolved
-  scriptName=$(basename $sourceFile)
+  scriptName=$(basename "$sourceFile")
   log "Create backup into $tempPath/$scriptName.backup"
   cp -pf "$sourceFile" "$tempPath/$scriptName.backup" || exitHandler -1
 
@@ -148,7 +147,7 @@ function argParse() {
 
 function embeddedScript() {
   ## BEGIN - selfupdate-script embedded content
-  echo "Invocation of embedded script"
+  echo "Invocation of embedded script $*"
   ## END - selfupdate-script embedded content
 }
 
